@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 
 
-const persons = [
+let persons = [
   {
     "id": 1,
     "name": "Arto Hellas",
@@ -24,18 +24,18 @@ const persons = [
     "name": "Mary Poppendieck",
     "number": "39-23-6423122"
   }
-]
+];
 
 app.get('/api/persons', (request, response) => {
   response.json(persons);
-})
+});
 
 app.get('/info', (request, response) => {
   response.send(`
     Phonebook has info for ${persons.length} people. <br />
     ${Date()}
   `)
-})
+});
 
 app.get('/api/persons/:id',  (request, response) => {
   const id = Number(request.params.id);
@@ -46,10 +46,22 @@ app.get('/api/persons/:id',  (request, response) => {
   }
 
   response.json(person);
+});
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id);
+  const personToDelete = persons.find(person => person.id === id);
+
+  if (!personToDelete) {
+    return response.status(404).end();
+  }
+
+  persons = persons.filter(person => person.id !== id);
+  response.status(204).end();
 })
 
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running in port ${3001}`);
-})
+});
 
