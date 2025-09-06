@@ -69,7 +69,15 @@ app.post('/api/persons', (request, response) => {
 
   if (!(name && number)) {
     return response.status(400).json({
-      error: "name and number are required."
+      error: "Name and number are required."
+    });
+  }
+
+  const repeatedPerson = people.some(person => person.name.toLowerCase().includes(name));
+
+  if (repeatedPerson) {
+    return response.status(409).json({
+      error: "Repeated person, the name must be unique."
     });
   }
 
