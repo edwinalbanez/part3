@@ -52,7 +52,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
 
   if (!request.body) {
     return response.status(400).json({
@@ -72,7 +72,8 @@ app.post('/api/persons', (request, response) => {
 
   person.save().then(addedPerson => {
     response.status(201).json(addedPerson)
-  });
+  })
+  .catch(error => next(error));
 
 });
 
@@ -115,7 +116,18 @@ app.use(unknowEndpoint);
 
 const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
-    return response.status(400).json({ error: 'Incorrect format id.' })
+    return response.status(400).json({ error: 'Incorrect format id.' });
+  } else if (error.name === 'ValidationError') {
+    
+    const { path, kind } = error.errors.name;
+
+    if (kind === 'minlength') {
+      return response.status(400).json({
+        error: `The ${path} must have at least 3 characters.`
+      });
+    }
+    
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);

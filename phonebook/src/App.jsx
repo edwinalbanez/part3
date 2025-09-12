@@ -65,7 +65,7 @@ const App = () => {
         })
         .catch(() => {
           createMessage(`${repeatedPerson.name}'s number could not be updated.`, false);
-        })
+        });
 
       return;
     }
@@ -77,9 +77,10 @@ const App = () => {
         clearFields();
         createMessage(`${newPerson.name} has been added.`);
       })
-      .catch(() => {
-        createMessage(`Could not add ${newName}`);
-      })
+      .catch((error) => {
+        const { error: message } = error.response.data;
+        createMessage(`Could not add "${newName}". ${message}`, false);
+      });
   }
 
   const handleDeletePerson = (id, name) => {
