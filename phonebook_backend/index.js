@@ -96,8 +96,9 @@ app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
   const person = { name, number };
 
-  Person.findByIdAndUpdate(id, person, { new: true })
-    .then(updatedPerson => {
+  Person.findByIdAndUpdate(
+    id, person, { new: true, runValidators: true, context: 'query' }
+  ).then(updatedPerson => {
       if (!updatedPerson) {
         return response.status(404).json({
           error: 'Person not found.'
@@ -117,17 +118,51 @@ app.use(unknowEndpoint);
 const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).json({ error: 'Incorrect format id.' });
-  } else if (error.name === 'ValidationError') {
-    
-    const { path, kind } = error.errors.name;
 
-    if (kind === 'minlength') {
-      return response.status(400).json({
-        error: `The ${path} must have at least 3 characters.`
-      });
-    }
+  } else if (error.name === 'ValidationError') {
+
+    const fieldsWithError = Object.keys(error.errors);
+    const errors = [];
+
+    fieldsWithError.forEach(field => {
+
+      if (field === 'name') {
+        const { kind } = error.errors.name;
+        
+        switch (kind) {
+          case 'required':
+            errors.push('The name is required.');
+            break;
+          case 'minlength':
+            errors.push('The name must have at least 3 characters.');
+            break;
+          default:
+            errors.push('Incorrect name format.');
+            break;
+        }
+      }
+
+      if (field === 'number') {
+        const { kind } = error.errors.number;
+        
+        switch (kind) {
+          case 'required':
+            errors.push('The number is required.');
+            break;
+          case 'minlength':
+            errors.push('The number must have at least 8 digits.')
+            break;
+          case 'user defined':
+            errors.push('Wrong number format, try something like 12-1234567 or 123-12345678.');
+            break;
+          default:
+            errors.push('Incorrect number format.');
+            break;
+        }
+      } 
+    });
     
-    return response.status(400).json({ error: error.message });
+    return response.status(400).json({ error: errors.join(' ') });
   }
 
   next(error);

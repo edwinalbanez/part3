@@ -63,8 +63,9 @@ const App = () => {
           clearFields();
           createMessage(`Updated ${updatedPerson.name}'s number.`);
         })
-        .catch(() => {
-          createMessage(`${repeatedPerson.name}'s number could not be updated.`, false);
+        .catch((error) => {
+          const { error: message } = error.response.data;
+          createMessage(`${message}`, false);
         });
 
       return;
@@ -79,7 +80,7 @@ const App = () => {
       })
       .catch((error) => {
         const { error: message } = error.response.data;
-        createMessage(`Could not add "${newName}". ${message}`, false);
+        createMessage(`${message}`, false);
       });
   }
 
