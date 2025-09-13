@@ -4,13 +4,10 @@ if (process.argv.length < 3) {
   console.log("add the password as an argument");
   process.exit(1);
 }
-
 const password = process.argv[2];
-
 const url = `mongodb+srv://edwinalbanez23:${password}@cluster0.co6vk.mongodb.net/phonebook?retryWrites=true&w=majority&appName=Cluster0`
 
 mongoose.set('strictQuery', false);
-
 mongoose.connect(url);
 
 const personSchema = new mongoose.Schema({
