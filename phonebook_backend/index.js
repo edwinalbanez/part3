@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('dist'))
 
-morgan.token("body", (request, response) => JSON.stringify(request.body));
+morgan.token("body", (request) => JSON.stringify(request.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'));
 
 
@@ -50,7 +50,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
     })
     .catch(error => next(error));
 
-})
+});
 
 app.post('/api/persons', (request, response, next) => {
 
@@ -84,9 +84,9 @@ app.put('/api/persons/:id', (request, response, next) => {
       error: 'No data in the request.'
     })
   }
-  
+
   const { name, number } = request.body;
-  
+
   if (!(name && number)) {
     return response.status(400).json({
       error: 'Name and number are required.'
@@ -107,10 +107,10 @@ app.put('/api/persons/:id', (request, response, next) => {
       response.json(updatedPerson)
     })
     .catch(error => next(error));
-})
+});
 
 const unknowEndpoint = (request, response) => {
-  response.status(404).json({ error: 'unknow endpoint'})
+  response.status(404).json({ error: 'unknow endpoint' })
 }
 
 app.use(unknowEndpoint);
@@ -128,7 +128,7 @@ const errorHandler = (error, request, response, next) => {
 
       if (field === 'name') {
         const { kind } = error.errors.name;
-        
+
         switch (kind) {
           case 'required':
             errors.push('The name is required.');
@@ -144,7 +144,7 @@ const errorHandler = (error, request, response, next) => {
 
       if (field === 'number') {
         const { kind } = error.errors.number;
-        
+
         switch (kind) {
           case 'required':
             errors.push('The number is required.');
@@ -159,9 +159,9 @@ const errorHandler = (error, request, response, next) => {
             errors.push('Incorrect number format.');
             break;
         }
-      } 
+      }
     });
-    
+
     return response.status(400).json({ error: errors.join(' ') });
   }
 
@@ -173,6 +173,6 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
-  console.log(`Server running in port ${3001}`);
+  console.log(`Server running in port ${PORT}`);
 });
 
